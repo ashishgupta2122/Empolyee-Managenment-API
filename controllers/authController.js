@@ -5,17 +5,22 @@ const jwt = require('jsonwebtoken');
 
 // Register a new user
 exports.register = async (req, res) => {
-    const { username, email, password, role } = req.body;
     try {
+        const { username, email, password, role } = req.body;
+        console.log('Register request body:', req.body); // Debug log
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ success: false, error: 'User already exists' });
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, email, password: hashedPassword, role });
-        await newUser.save();
-        res.status(201).json({ message: 'User registered successfully' });
+        const user = await User.create({ username, email, password: hashedPassword, role });
+        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.status(201).json({ success: true, user: { id: user._id, username, email, role }, token });
     } catch (error) {
-        res.status(500).json({ error: 'Error registering user' });
+        console.error('Register error:', error); // Debug log
+        res.status(500).json({ success: false, error: error.message });
     }
 };
-
 // User login
 exports.login = async (req, res) => {
     const { email, password } = req.body;
@@ -27,12 +32,20 @@ exports.login = async (req, res) => {
         if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
 
         const token = jwt.sign(
-            { id: user._id, role: user.role },
+            { id: user._id, role: user.role },   // 🔥 include role here!
             process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
 
-        res.json({ token, user: { id: user._id, name: user.name, role: user.role } });
+        res.json({
+            token,
+            user: {
+                id: user._id,
+                username: user.username,  // 🔥 use "username" not "name"
+                email: user.email,
+                role: user.role
+            }
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

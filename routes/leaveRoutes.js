@@ -5,6 +5,8 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 // Route to apply for leave
 router.post('/', authMiddleware, applyLeave);
+
+// Route to get leaves by employeeId
 router.get('/:employeeId', authMiddleware, getLeaves);
 
 module.exports = router;
