@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 exports.register = async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
-        console.log('Register request body:', req.body); // Debug log
+        console.log('Register request body:', req.body); 
         const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(400).json({ success: false, error: 'User already exists' });
@@ -32,7 +32,7 @@ exports.login = async (req, res) => {
         if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
 
         const token = jwt.sign(
-            { id: user._id, role: user.role },   // 🔥 include role here!
+            { id: user._id, role: user.role },   //include role here!
             process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
@@ -41,7 +41,7 @@ exports.login = async (req, res) => {
             token,
             user: {
                 id: user._id,
-                username: user.username,  // 🔥 use "username" not "name"
+                username: user.username,  //  use "username" not "name"
                 email: user.email,
                 role: user.role
             }
