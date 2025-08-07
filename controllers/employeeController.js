@@ -16,7 +16,7 @@ const createEmployee = async (req, res) => {
         await newEmployee.save();
         res.status(201).json(newEmployee);
     } catch (error) {
-        console.error("🔥 Error in createEmployee:", error);  // 👈 Add this
+        console.error("Error in createEmployee:", error);  //  Add this
         res.status(500).json({ error: 'Error creating employee' });
     }
 };
