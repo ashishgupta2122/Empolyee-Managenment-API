@@ -1,6 +1,6 @@
 const Attendance = require('../models/Attendance');
 
-// ✅ Controller to mark attendance
+//  Controller to mark attendance
 exports.makeAttendance = async (req, res) => {
     try {
         const { employeeId, date, status } = req.body;
@@ -21,7 +21,7 @@ exports.makeAttendance = async (req, res) => {
     }
 };
 
-// ✅ Controller to get attendance by employee ID
+//  Controller to get attendance by employee ID
 exports.getAttendance = async (req, res) => {
     try {
         const { employeeId } = req.params;
