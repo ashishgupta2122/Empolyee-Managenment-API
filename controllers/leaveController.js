@@ -1,11 +1,21 @@
 // leaveController.js
 const Leave = require('../models/Leave'); // Assuming you have a Leave model
+const User = require('../models/User'); // Assuming you have a User model
+const mongoose = require('mongoose');
 exports.applyLeave = async (req, res) => {
     try {
         const { employeeId, startDate, endDate, reason, leaveType } = req.body;
 
         if (!employeeId || !startDate || !endDate || !reason || !leaveType) {
             return res.status(400).json({ error: "All fields (employeeId, startDate, endDate, reason, leaveType) are required" });
+        }
+        if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+            return res.status(400).json({ error: 'Invalid employee ID' });
+        }
+
+        const user = await User.findById(employeeId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
         }
 
         const newLeave = new Leave({
@@ -42,10 +52,16 @@ exports.applyLeave = async (req, res) => {
 
 exports.getLeaves = async (req, res) => {
     const { employeeId } = req.params;
-
+    if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+        return res.status(400).json({ error: 'Invalid employee ID' });
+    }
     try {
-        const leaves = await Leave.find({ employeeId });
+        const user = await User.findById(employeeId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
 
+        const leaves = await Leave.find({ employeeId });
         if (!leaves || leaves.length === 0) {
             return res.status(404).json({ error: "No leave records found for this employee" });
         }
