@@ -7,40 +7,72 @@ const Attendance = require('../models/Attendance');
 
 const getAllEmployees = async (req, res) => {
     try {
-        // Step 1: Populate userId while fetching employees
+        // ✅ Step 1: Fetch all employees and populate userId from User model
         const employees = await Employee.find().populate('userId');
+        console.log("📋 All Employees (with populate):", employees);
 
-        console.log("Employees in DB with populated userId:", employees);
-
-        // Step 2: Filter only those where userId is actually populated (exists)
+        // ✅ Step 2: Filter only those employees that have a valid linked user
         const validEmployees = employees.filter(emp => emp.userId);
-        console.log(validEmployees);
-        res.status(200).json(employees);
+        console.log("✅ Employees with valid userId populated:", validEmployees);
+
+        // ✅ Step 3: Send filtered employees in response
+        res.status(200).json({
+            success: true,
+            count: validEmployees.length,
+            employees: validEmployees
+        });
+
     } catch (error) {
-        console.error("Error in getAllEmployees:", error);
-        res.status(500).json({ error: 'Error fetching employees' });
+        console.error("❌ Error in getAllEmployees:", error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching employees',
+            error: error.message
+        });
     }
 };
-
-
-
-
 
 const createEmployee = async (req, res) => {
     const { username, email, position, department, salary, employeeId } = req.body;
+
     try {
+        // Step 1: Check if the user exists
         const userExists = await User.findById(employeeId);
         if (!userExists) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
-        const newEmployee = new Employee({ username, email, position, department, salary, _id: employeeId });
+
+        // Step 2: Create a new employee and link to the userId
+        const newEmployee = new Employee({
+            username,
+            email,
+            position,
+            department,
+            salary,
+            userId: employeeId  // Link employee to the user
+        });
+
+        // Step 3: Save employee to DB
         await newEmployee.save();
-        res.status(201).json(newEmployee);
+        console.log("✅ New Employee Created:", newEmployee);
+
+        // Step 4: Respond with the created employee
+        res.status(201).json({
+            success: true,
+            message: 'Employee created successfully',
+            employee: newEmployee
+        });
+
     } catch (error) {
-        console.error("Error in createEmployee:", error);  //  Add this
-        res.status(500).json({ error: 'Error creating employee' });
+        console.error("❌ Error in createEmployee:", error);
+        res.status(500).json({
+            success: false,
+            message: 'Error creating employee',
+            error: error.message
+        });
     }
 };
+
 
 
 const updateEmployee = async (req, res) => {

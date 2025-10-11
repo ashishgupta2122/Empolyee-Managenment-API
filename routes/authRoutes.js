@@ -12,10 +12,10 @@ router.post('/login', login);
 // Get employee profile (protected)
 router.get('/profile', authMiddleware, getProfile);
 
-// Log out (public)
+// Log out (protected)
 router.post('/logout', authMiddleware, logOut);
 
-// Define account
-router.delete('/delete:id', authMiddleware, deleteAccount);
+// Delete own account (protected)
+router.delete('/delete', authMiddleware, deleteAccount);
 
 module.exports = router;
