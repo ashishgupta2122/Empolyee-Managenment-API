@@ -3,12 +3,6 @@ const mongoose = require("mongoose");
 let isConnected = false; // Track connection status
 
 const connectDB = async () => {
-    if (isConnected) {
-        // Reuse existing connection
-        console.log("✅ Using existing MongoDB connection");
-        return;
-    }
-
     try {
         const db = await mongoose.connect(process.env.MONGO_URI, {
             useNewUrlParser: true,
