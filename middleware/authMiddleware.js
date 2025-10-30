@@ -1,4 +1,3 @@
-// middleware/authMiddleware.js
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
@@ -21,8 +20,8 @@ module.exports = async (req, res, next) => {
             return res.status(401).json({ error: "User does not exist" });
         }
 
-        // 3. Optional: Token match check (for logout/session invalidation)
-        if (!user.activeTokens.includes(token)) {
+        // 3. Optional: Token match check (only if field exists)
+        if (Array.isArray(user.activeTokens) && !user.activeTokens.includes(token)) {
             return res.status(401).json({ error: "Session expired or logged out" });
         }
 
